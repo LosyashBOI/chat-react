@@ -2,13 +2,17 @@ function Output() {
   return (
     <div className="chat__middle">
       <div className="chat__output flex">
-        <template className="template-message">
-          <p className="message__text">
-            {/*<span className="message__author">Я:</span>*/}
-          </p>
-          <time className="message__time"></time>
-        </template>
+        <Message />
       </div>
+    </div>
+  );
+}
+
+function Message() {
+  return (
+    <div className="message message_me message_sent">
+      <p className="message__text">losyashboi: Йоу</p>
+      <time className="message__time">{Date.now()}</time>
     </div>
   );
 }
