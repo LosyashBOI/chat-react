@@ -10,22 +10,27 @@ import Top from './components/top';
 type modalKeys = keyof typeof MODALS;
 export type modalValues = typeof MODALS[modalKeys];
 
-// const defaultName = 'losyashboi';
+const defaultName = 'Я';
 
 function App() {
   const [activeModal, setActiveModal] = useState<modalValues>(MODALS.INACTIVE);
   const [isLoggedIn, setLogin] = useState(false);
-  // const [name, setName] = useState(defaultName);
+  const [name, setName] = useState(defaultName);
   // const [email, setEmail] = useState('');
 
   return (
     <div className="chat">
       <div className="chat__container flex">
         <Top setActive={setActiveModal} isLoggedIn={isLoggedIn} setLogin={setLogin} />
-        <Output />
+        <Output name={name} />
         <Bottom />
       </div>
-      <Modals active={activeModal} setActive={setActiveModal} setLogin={setLogin} />
+      <Modals
+        active={activeModal}
+        setActive={setActiveModal}
+        setLogin={setLogin}
+        setName={setName}
+      />
     </div>
   );
 }

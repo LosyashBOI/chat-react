@@ -6,7 +6,6 @@ const COOKIES = {
   USER: 'user',
 };
 
-export const token = Cookies.get(COOKIES.TOKEN);
 export const user = Cookies.get(COOKIES.USER);
 
 export function getDate(time: number) {
@@ -27,4 +26,11 @@ export function jsonData(data: string | object) {
 
 export function saveToken(token: string) {
   Cookies.set(COOKIES.TOKEN, token, { expires: 1 });
+}
+
+export function getToken() {
+  const token = Cookies.get(COOKIES.TOKEN);
+
+  if (!token) throw new Error('Вы не авторизованы');
+  return token;
 }

@@ -1,8 +1,8 @@
 import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
 
-import { codeRequest, getUsername } from '../api';
+import { changeUsername, codeRequest, getUserData } from '../api';
 import { modalValues } from '../App';
-import { saveToken } from '../utils';
+import { getToken, saveToken } from '../utils';
 
 const MODALS = {
   INACTIVE: 'inactive',
@@ -15,19 +15,47 @@ interface IModal {
   active: modalValues;
   setActive: Dispatch<SetStateAction<string>>;
   setLogin?: Dispatch<SetStateAction<boolean>>;
+  setName?: Dispatch<SetStateAction<string>>;
 }
 
-function Modals({ active, setActive, setLogin }: IModal) {
+function Modals({ active, setActive, setLogin, setName }: IModal) {
   return (
     <div className={`${active} modal flex`}>
-      <SettingsModal setActive={setActive} active={active} />
+      <SettingsModal setActive={setActive} active={active} setName={setName} />
       <AuthorizationModal setActive={setActive} active={active} />
-      <CodeConfirmationModal setActive={setActive} active={active} setLogin={setLogin} />
+      <CodeConfirmationModal
+        setActive={setActive}
+        active={active}
+        setLogin={setLogin}
+        setName={setName}
+      />
     </div>
   );
 }
 
-function SettingsModal({ setActive, active }: IModal) {
+function SettingsModal({ setActive, active, setName }: IModal) {
+  const [value, setValue] = useState('');
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const token = getToken();
+      console.log(token);
+      await changeUsername(value, token);
+      setName?.(value);
+
+      setActive(MODALS.INACTIVE);
+      setValue('');
+    } catch (e) {
+      if (e instanceof Error) {
+        alert(e.message);
+      } else {
+        throw Error;
+      }
+    }
+  };
+
   return (
     <div className={active === MODALS.SETTINGS ? 'modal__element' : MODALS.INACTIVE}>
       <div className="modal__top flex">
@@ -40,8 +68,14 @@ function SettingsModal({ setActive, active }: IModal) {
         </button>
       </div>
       <p className="chat-name">Имя в чате</p>
-      <form className="settings__form flex">
-        <input className="input input_settings" type="text" placeholder="Стив" />
+      <form className="settings__form flex" onSubmit={handleSubmit}>
+        <input
+          className="input input_settings"
+          type="text"
+          placeholder="Стив"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
         <input className="btn btn_chat btn_settings-submit" type="submit" value="->" />
       </form>
     </div>
@@ -49,19 +83,21 @@ function SettingsModal({ setActive, active }: IModal) {
 }
 
 function AuthorizationModal({ setActive, active }: IModal) {
-  const [email, setEmail] = useState('');
+  const [value, setValue] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
-      if (!email.trim()) return;
-
-      await codeRequest(email);
+      await codeRequest(value);
       setActive(MODALS.CONFIRMATION);
-      setEmail('');
+      setValue('');
     } catch (e) {
-      alert(e);
+      if (e instanceof Error) {
+        alert(e.message);
+      } else {
+        throw Error;
+      }
     }
   };
 
@@ -81,8 +117,8 @@ function AuthorizationModal({ setActive, active }: IModal) {
         <input
           className="input input_authorization"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
         />
         <input
           className="btn btn_chat btn_authorization-submit"
@@ -94,24 +130,28 @@ function AuthorizationModal({ setActive, active }: IModal) {
   );
 }
 
-function CodeConfirmationModal({ setActive, active, setLogin }: IModal) {
-  const [token, setToken] = useState('');
+function CodeConfirmationModal({ setActive, active, setLogin, setName }: IModal) {
+  const [tokenInput, setTokenInput] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
-      if (!token.trim()) return;
+      const { email, name } = await getUserData(tokenInput);
+      console.log(email, name);
 
-      const userData = await getUsername(token);
-      console.log(userData);
-      saveToken(token);
+      setName?.(name);
+      saveToken(tokenInput);
       setLogin?.(true);
 
       setActive(MODALS.INACTIVE);
-      setToken('');
+      setTokenInput('');
     } catch (e) {
-      alert(e);
+      if (e instanceof Error) {
+        alert(e.message);
+      } else {
+        throw Error;
+      }
     }
   };
 
@@ -131,8 +171,8 @@ function CodeConfirmationModal({ setActive, active, setLogin }: IModal) {
         <input
           className="input input_confirmation"
           type="text"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
+          value={tokenInput}
+          onChange={(e) => setTokenInput(e.target.value)}
         />
         <input
           className="btn btn_chat btn_confirmation-submit"

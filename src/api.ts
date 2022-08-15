@@ -2,7 +2,7 @@ import { jsonData } from './utils';
 
 const URL = {
   USER: 'https://mighty-cove-31255.herokuapp.com/api/user',
-  CHANGE_NAME: 'https://mighty-cove-31255.herokuapp.com/api/user/me',
+  GET_USER_DATA: 'https://mighty-cove-31255.herokuapp.com/api/user/me',
   MESSAGES: 'https://mighty-cove-31255.herokuapp.com/api/messages',
 };
 
@@ -12,6 +12,8 @@ const HEADERS = {
 };
 
 async function codeRequest(email: string) {
+  if (!email.trim()) throw new Error('Введите email');
+
   const jsonEmail = jsonData({ email });
 
   const response = await fetch(URL.USER, {
@@ -23,15 +25,17 @@ async function codeRequest(email: string) {
   });
 
   if (!response.ok) {
-    throw new Error('Невалидный email'); // ошибка может прилететь от json
+    throw new Error('Невалидный email');
   }
 }
 
 async function changeUsername(name: string, token: string) {
+  if (!name.trim()) throw new Error('Введите имя');
+
   const jsonName = jsonData({ name });
 
   const response = await fetch(URL.USER, {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
       'Content-Type': HEADERS.JSON,
       Authorization: HEADERS.AUTHORIZATION(token),
@@ -40,16 +44,22 @@ async function changeUsername(name: string, token: string) {
   });
 
   if (!response.ok) {
-    throw new Error('Не удалось поменять никнейм'); // ошибка может прилететь от json
+    throw new Error('Не удалось поменять никнейм');
   }
 }
 
-async function getUsername(token: string) {
-  return await fetch(URL.CHANGE_NAME, {
+async function getUserData(token: string) {
+  if (!token.trim()) throw new Error('Введите код');
+
+  const response = await fetch(URL.GET_USER_DATA, {
     headers: {
       Authorization: HEADERS.AUTHORIZATION(token),
     },
   });
+
+  if (!response.ok) throw new Error('Не удалось получить данные');
+
+  return await response.json();
 }
 
-export { changeUsername, codeRequest, getUsername };
+export { changeUsername, codeRequest, getUserData };
