@@ -12,7 +12,7 @@ type modalKeys = keyof typeof MODALS;
 export type modalValues = typeof MODALS[modalKeys];
 
 function App() {
-  const [activeModal, setActiveModal] = useState<modalValues>(MODALS.CONFIRMATION);
+  const [activeModal, setActiveModal] = useState<modalValues>(MODALS.INACTIVE);
   const [isLoggedIn, setLogin] = useState(!!token);
   const [email, setEmail] = useState(userEmail);
 

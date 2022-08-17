@@ -77,7 +77,7 @@ function SettingsModal({ setActive, active }: IModal) {
 }
 
 function AuthorizationModal({ setActive, active, setEmail }: IModal) {
-  const [value, setValue] = useState('losyashboi@gmail.com');
+  const [value, setValue] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
