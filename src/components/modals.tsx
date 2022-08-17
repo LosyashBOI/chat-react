@@ -15,25 +15,20 @@ interface IModal {
   active: modalValues;
   setActive: Dispatch<SetStateAction<string>>;
   setLogin?: Dispatch<SetStateAction<boolean>>;
-  setName?: Dispatch<SetStateAction<string>>;
+  setEmail?: Dispatch<SetStateAction<string | undefined>>;
 }
 
-function Modals({ active, setActive, setLogin, setName }: IModal) {
+function Modals({ active, setActive, setLogin, setEmail }: IModal) {
   return (
     <div className={`${active} modal flex`}>
-      <SettingsModal setActive={setActive} active={active} setName={setName} />
-      <AuthorizationModal setActive={setActive} active={active} />
-      <CodeConfirmationModal
-        setActive={setActive}
-        active={active}
-        setLogin={setLogin}
-        setName={setName}
-      />
+      <SettingsModal setActive={setActive} active={active} setEmail={setEmail} />
+      <AuthorizationModal setActive={setActive} active={active} setEmail={setEmail} />
+      <CodeConfirmationModal setActive={setActive} active={active} setLogin={setLogin} />
     </div>
   );
 }
 
-function SettingsModal({ setActive, active, setName }: IModal) {
+function SettingsModal({ setActive, active }: IModal) {
   const [value, setValue] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
@@ -41,9 +36,8 @@ function SettingsModal({ setActive, active, setName }: IModal) {
 
     try {
       const token = getToken();
-      console.log(token);
+      // console.log(token);
       await changeUsername(value, token);
-      setName?.(value);
 
       setActive(MODALS.INACTIVE);
       setValue('');
@@ -82,14 +76,16 @@ function SettingsModal({ setActive, active, setName }: IModal) {
   );
 }
 
-function AuthorizationModal({ setActive, active }: IModal) {
-  const [value, setValue] = useState('');
+function AuthorizationModal({ setActive, active, setEmail }: IModal) {
+  const [value, setValue] = useState('losyashboi@gmail.com');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
       await codeRequest(value);
+
+      setEmail?.(value);
       setActive(MODALS.CONFIRMATION);
       setValue('');
     } catch (e) {
@@ -130,7 +126,7 @@ function AuthorizationModal({ setActive, active }: IModal) {
   );
 }
 
-function CodeConfirmationModal({ setActive, active, setLogin, setName }: IModal) {
+function CodeConfirmationModal({ setActive, active, setLogin }: IModal) {
   const [tokenInput, setTokenInput] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
@@ -140,7 +136,6 @@ function CodeConfirmationModal({ setActive, active, setLogin, setName }: IModal)
       const { email, name } = await getUserData(tokenInput);
       console.log(email, name);
 
-      setName?.(name);
       saveToken(tokenInput);
       setLogin?.(true);
 

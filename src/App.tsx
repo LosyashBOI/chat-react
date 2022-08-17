@@ -6,30 +6,28 @@ import Bottom from './components/bottom';
 import { MODALS, Modals } from './components/modals';
 import Output from './components/output';
 import Top from './components/top';
+import { token, userEmail } from './utils';
 
 type modalKeys = keyof typeof MODALS;
 export type modalValues = typeof MODALS[modalKeys];
 
-const defaultName = 'Я';
-
 function App() {
-  const [activeModal, setActiveModal] = useState<modalValues>(MODALS.INACTIVE);
-  const [isLoggedIn, setLogin] = useState(false);
-  const [name, setName] = useState(defaultName);
-  // const [email, setEmail] = useState('');
+  const [activeModal, setActiveModal] = useState<modalValues>(MODALS.CONFIRMATION);
+  const [isLoggedIn, setLogin] = useState(!!token);
+  const [email, setEmail] = useState(userEmail);
 
   return (
     <div className="chat">
       <div className="chat__container flex">
         <Top setActive={setActiveModal} isLoggedIn={isLoggedIn} setLogin={setLogin} />
-        <Output name={name} />
+        <Output currentEmail={email} isLoggedIn={isLoggedIn} />
         <Bottom />
       </div>
       <Modals
         active={activeModal}
         setActive={setActiveModal}
         setLogin={setLogin}
-        setName={setName}
+        setEmail={setEmail}
       />
     </div>
   );

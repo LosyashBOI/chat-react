@@ -1,26 +1,96 @@
-import { getDate } from '../utils';
+import classNames from 'classnames';
+import {Dispatch, SetStateAction, useEffect, useState} from 'react';
 
-interface IOutput {
+import { getMessageHistory, message } from '../api';
+import { getDate, getToken } from '../utils';
+
+interface destructedMessage {
+  time: string;
+  text: string;
   name: string;
+  email: string;
+  id?: string;
 }
 
-function Output({ name }: IOutput) {
+interface IOutput {
+  currentEmail: string | undefined;
+  isLoggedIn: boolean;
+}
+
+function Output({ currentEmail, isLoggedIn }: IOutput) {
+  const [messages, setMessages] = useState<Array<destructedMessage>>([]);
+
+  useEffect(() => {
+    console.log('Fetching messages');
+
+    (async () => {
+      if (isLoggedIn) {
+        const result = await getMessageHistory();
+        const data = result
+          .filter((_item, index) => index < 20)
+          .map((item) => messagesData(item));
+
+        console.log(data);
+        setMessages(data);
+      }
+    })();
+
+    return () => {};
+  }, [isLoggedIn]);
+
   return (
     <div className="chat__middle">
       <div className="chat__output flex">
-        <Message name={name} />
+        {messages.map((item) => {
+          const { id, name, text, time, email } = item;
+          return (
+            <Message
+              key={id}
+              name={name}
+              text={text}
+              time={getDate(time)}
+              email={email}
+              currentEmail={currentEmail}
+            />
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function Message({ name }: IOutput) {
+function Message({ name, text, time, email, currentEmail }: destructedMessage & IOutput) {
+  const isCurrentUserMessage = email === currentEmail;
+
+  const messageClass = classNames({
+    message: true,
+    message_me: isCurrentUserMessage,
+    message_companion: !isCurrentUserMessage,
+    message_sent: isCurrentUserMessage,
+    message_delivered: !isCurrentUserMessage,
+  });
+
   return (
-    <div className="message message_me message_sent">
-      <p className="message__text">{name}: i</p>
-      <time className="message__time">{getDate(Date.now())}</time>
+    <div className={messageClass}>
+      <p className="message__text">
+        {name}: {text}
+      </p>
+      <time className="message__time">{time}</time>
     </div>
   );
 }
+
+function messagesData(data: message) {
+  const {
+    createdAt: time,
+    text,
+    user: { name, email },
+    _id: id,
+  } = data;
+
+  return { time, text, name, email, id };
+}
+
+// function getMessages(messages: )
 
 export default Output;

@@ -3,12 +3,13 @@ import Cookies from 'js-cookie';
 
 const COOKIES = {
   TOKEN: 'token',
-  USER: 'user',
+  EMAIL: 'email',
 };
 
-export const user = Cookies.get(COOKIES.USER);
+export const userEmail = Cookies.get(COOKIES.EMAIL);
+export const token = Cookies.get(COOKIES.TOKEN);
 
-export function getDate(time: number) {
+export function getDate(time: string) {
   return format(new Date(time), 'd/M/yy HH:mm');
 }
 
@@ -29,8 +30,6 @@ export function saveToken(token: string) {
 }
 
 export function getToken() {
-  const token = Cookies.get(COOKIES.TOKEN);
-
-  if (!token) throw new Error('Вы не авторизованы');
-  return token;
+  // if (!token) throw new Error('Вы не авторизованы');
+  return Cookies.get(COOKIES.TOKEN);
 }

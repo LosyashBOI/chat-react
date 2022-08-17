@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 
+import { getToken, saveToken } from '../utils';
 import { MODALS } from './modals';
 
 interface props {
@@ -9,8 +10,11 @@ interface props {
 }
 
 function Top({ setActive, isLoggedIn, setLogin }: props) {
+  const token = getToken();
+
   const handleAuth = () => {
-    if (isLoggedIn) {
+    if (token) {
+      saveToken('');
       setLogin(false);
     } else {
       setActive(MODALS.AUTHORIZATION);
@@ -26,7 +30,7 @@ function Top({ setActive, isLoggedIn, setLogin }: props) {
         Настройки
       </button>
       <button className="btn btn_chat btn_log-out" onClick={handleAuth}>
-        {isLoggedIn ? 'Выйти' : 'Войти'}
+        {isLoggedIn || token ? 'Выйти' : 'Войти'}
       </button>
     </div>
   );

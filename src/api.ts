@@ -29,8 +29,12 @@ async function codeRequest(email: string) {
   }
 }
 
-async function changeUsername(name: string, token: string) {
-  if (!name.trim()) throw new Error('Введите имя');
+async function changeUsername(name: string, token: string | undefined) {
+  if (!name.trim()) {
+    throw new Error('Введите имя');
+  } else if (!token) {
+    throw new Error('Вы не авторизованы');
+  }
 
   const jsonName = jsonData({ name });
 
@@ -57,9 +61,29 @@ async function getUserData(token: string) {
     },
   });
 
-  if (!response.ok) throw new Error('Не удалось получить данные');
+  if (!response.ok) throw new Error('Не удалось получить данные пользователя');
 
   return await response.json();
 }
 
-export { changeUsername, codeRequest, getUserData };
+export interface message {
+  createdAt: string;
+  text: string;
+  user: {
+    name: string;
+    email: string;
+  };
+  _id: string;
+}
+
+async function getMessageHistory() {
+  const response = await fetch(URL.MESSAGES);
+
+  if (!response.ok) throw new Error('Не удалось получить историю сообщений');
+
+  const { messages }: { messages: message[] } = await response.json();
+
+  return messages;
+}
+
+export { changeUsername, codeRequest, getMessageHistory, getUserData };
