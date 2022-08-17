@@ -1,8 +1,8 @@
 import classNames from 'classnames';
-import {Dispatch, SetStateAction, useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 
 import { getMessageHistory, message } from '../api';
-import { getDate, getToken } from '../utils';
+import { getDate } from '../utils';
 
 interface destructedMessage {
   time: string;
@@ -59,7 +59,11 @@ function Output({ currentEmail, isLoggedIn }: IOutput) {
   );
 }
 
-function Message({ name, text, time, email, currentEmail }: destructedMessage & IOutput) {
+interface email {
+  currentEmail: string | undefined;
+}
+
+function Message({ name, text, time, email, currentEmail }: destructedMessage & email) {
   const isCurrentUserMessage = email === currentEmail;
 
   const messageClass = classNames({
@@ -90,7 +94,5 @@ function messagesData(data: message) {
 
   return { time, text, name, email, id };
 }
-
-// function getMessages(messages: )
 
 export default Output;
