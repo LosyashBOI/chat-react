@@ -35,7 +35,7 @@ body {
     flex-direction: column;
     justify-content: space-between;
     min-width: 320px;
-    height: 100vh;
+    height: 95vh;
     padding: 8px;
     font-size: 16px;
     line-height: 19px;
@@ -93,14 +93,6 @@ body {
     word-wrap: break-word;
 }
 
-.message_delivered {
-    background: #e5e5e5;
-}
-
-.message_sent {
-    background: #f7f7f7;
-}
-
 .message__time {
     display: block;
     text-align: end;
@@ -113,10 +105,12 @@ body {
 
 .message_me {
     align-self: end;
+    background: #f7f7f7;
 }
 
 .message_companion {
     align-self: start;
+    background: #e5e5e5;
 }
 
 .chat__form {

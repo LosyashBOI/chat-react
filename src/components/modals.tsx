@@ -2,7 +2,7 @@ import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
 
 import { changeUsername, codeRequest, getUserData } from '../api';
 import { modalValues } from '../App';
-import { getToken, saveToken } from '../utils';
+import { getToken, saveEmail, saveToken } from '../utils';
 
 const MODALS = {
   INACTIVE: 'inactive',
@@ -85,6 +85,7 @@ function AuthorizationModal({ setActive, active, setEmail }: IModal) {
     try {
       await codeRequest(value);
 
+      saveEmail(value);
       setEmail?.(value);
       setActive(MODALS.CONFIRMATION);
       setValue('');

@@ -29,6 +29,10 @@ export function saveToken(token: string) {
   Cookies.set(COOKIES.TOKEN, token, { expires: 1 });
 }
 
+export function saveEmail(email: string) {
+  Cookies.set(COOKIES.EMAIL, email, { expires: 1 });
+}
+
 export function getToken() {
   // if (!token) throw new Error('Вы не авторизованы');
   return Cookies.get(COOKIES.TOKEN);

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 
-import { getToken, saveToken } from '../utils';
+import { getToken, saveEmail, saveToken } from '../utils';
 import { MODALS } from './modals';
 
 interface props {
@@ -15,6 +15,7 @@ function Top({ setActive, isLoggedIn, setLogin }: props) {
   const handleAuth = () => {
     if (token) {
       saveToken('');
+      saveEmail('');
       setLogin(false);
     } else {
       setActive(MODALS.AUTHORIZATION);
