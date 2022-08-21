@@ -23,7 +23,7 @@ function Output({ currentEmail, isLoggedIn }: IOutput) {
   // const [messageCount, setMessageCount] = useState(20);
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (isLoggedIn) {
       console.log('Fetching messages');
 
       (async () => {
