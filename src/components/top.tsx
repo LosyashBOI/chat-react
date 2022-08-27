@@ -1,37 +1,42 @@
-import { Dispatch, SetStateAction } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { getToken, saveEmail, saveToken } from '../utils';
-import { MODALS } from './modals';
+import { setModal } from '../redux/modalSlice';
+import { setUser } from '../redux/userSlice';
+import { MODALS, saveEmail, saveToken } from '../utils';
+import { IStore, IUser } from './interfaces';
 
-interface props {
-  setActive: Dispatch<SetStateAction<string>>;
-  isLoggedIn: boolean;
-  setLogin: Dispatch<SetStateAction<boolean>>;
-}
+function Top() {
+  const dispatch = useDispatch();
+  const { isAuth } = useSelector((state: IStore) => state.user);
 
-function Top({ setActive, isLoggedIn, setLogin }: props) {
-  const token = getToken();
-
-  const handleAuth = () => {
-    if (token) {
+  function handleAuth() {
+    if (isAuth) {
       saveToken('');
       saveEmail('');
-      setLogin(false);
+
+      const user: IUser = {
+        name: '',
+        email: '',
+        token: '',
+        isAuth: false,
+      };
+
+      dispatch(setUser(user));
     } else {
-      setActive(MODALS.AUTHORIZATION);
+      dispatch(setModal(MODALS.AUTHORIZATION));
     }
-  };
+  }
 
   return (
     <div className="chat__top flex">
       <button
         className="btn btn_chat btn_settings"
-        onClick={() => setActive(MODALS.SETTINGS)}
+        onClick={() => dispatch(setModal(MODALS.SETTINGS))}
       >
         Настройки
       </button>
       <button className="btn btn_chat btn_log-out" onClick={handleAuth}>
-        {isLoggedIn || token ? 'Выйти' : 'Войти'}
+        {isAuth ? 'Выйти' : 'Войти'}
       </button>
     </div>
   );

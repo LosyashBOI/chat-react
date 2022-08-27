@@ -1,6 +1,13 @@
 import { format } from 'date-fns';
 import Cookies from 'js-cookie';
 
+export const MODALS = {
+  INACTIVE: 'inactive',
+  SETTINGS: 'settings',
+  AUTHORIZATION: 'authorization',
+  CONFIRMATION: 'confirmation',
+};
+
 const COOKIES = {
   TOKEN: 'token',
   EMAIL: 'email',
@@ -26,14 +33,9 @@ export function jsonData(data: string | object) {
 }
 
 export function saveToken(token: string) {
-  Cookies.set(COOKIES.TOKEN, token, { expires: 1 });
+  Cookies.set(COOKIES.TOKEN, token, { expires: 3 });
 }
 
 export function saveEmail(email: string) {
-  Cookies.set(COOKIES.EMAIL, email, { expires: 1 });
-}
-
-export function getToken() {
-  // if (!token) throw new Error('Вы не авторизованы');
-  return Cookies.get(COOKIES.TOKEN);
+  Cookies.set(COOKIES.EMAIL, email, { expires: 3 });
 }

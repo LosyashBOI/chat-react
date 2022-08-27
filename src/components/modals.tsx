@@ -1,46 +1,40 @@
-import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
+import { FormEvent, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { changeUsername, codeRequest, getUserData } from '../api';
-import { modalValues } from '../App';
-import { getToken, saveEmail, saveToken } from '../utils';
+import { setModal } from '../redux/modalSlice';
+import { setUser } from '../redux/userSlice';
+import { MODALS, saveEmail, saveToken } from '../utils';
+import { IStore, IUser } from './interfaces';
 
-const MODALS = {
-  INACTIVE: 'inactive',
-  SETTINGS: 'settings',
-  AUTHORIZATION: 'authorization',
-  CONFIRMATION: 'confirmation',
-};
+function Modals() {
+  const activeModal = useSelector((state: IStore) => state.activeModal);
 
-interface IModal {
-  active: modalValues;
-  setActive: Dispatch<SetStateAction<string>>;
-  setLogin?: Dispatch<SetStateAction<boolean>>;
-  setEmail?: Dispatch<SetStateAction<string | undefined>>;
-}
-
-function Modals({ active, setActive, setLogin, setEmail }: IModal) {
   return (
-    <div className={`${active} modal flex`}>
-      <SettingsModal setActive={setActive} active={active} setEmail={setEmail} />
-      <AuthorizationModal setActive={setActive} active={active} setEmail={setEmail} />
-      <CodeConfirmationModal setActive={setActive} active={active} setLogin={setLogin} />
+    <div className={`${activeModal} modal flex`}>
+      <SettingsModal />
+      <AuthorizationModal />
+      <CodeConfirmationModal />
     </div>
   );
 }
 
-function SettingsModal({ setActive, active }: IModal) {
+function SettingsModal() {
+  const dispatch = useDispatch();
+  const {
+    activeModal,
+    user: { token },
+  } = useSelector((state: IStore) => state);
+
   const [value, setValue] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
-      const token = getToken();
-      // console.log(token);
       await changeUsername(value, token);
 
-      setActive(MODALS.INACTIVE);
-      setValue('');
+      dispatch(setModal(MODALS.INACTIVE));
     } catch (e) {
       if (e instanceof Error) {
         alert(e.message);
@@ -51,12 +45,12 @@ function SettingsModal({ setActive, active }: IModal) {
   };
 
   return (
-    <div className={active === MODALS.SETTINGS ? 'modal__element' : MODALS.INACTIVE}>
+    <div className={activeModal === MODALS.SETTINGS ? 'modal__element' : MODALS.INACTIVE}>
       <div className="modal__top flex">
         <h2 className="modal__title">Настройки</h2>
         <button
           className="btn btn_close-modal"
-          onClick={() => setActive(MODALS.INACTIVE)}
+          onClick={() => dispatch(setModal(MODALS.INACTIVE))}
         >
           +
         </button>
@@ -76,7 +70,10 @@ function SettingsModal({ setActive, active }: IModal) {
   );
 }
 
-function AuthorizationModal({ setActive, active, setEmail }: IModal) {
+function AuthorizationModal() {
+  const dispatch = useDispatch();
+  const activeModal = useSelector((state: IStore) => state.activeModal);
+
   const [value, setValue] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
@@ -85,9 +82,7 @@ function AuthorizationModal({ setActive, active, setEmail }: IModal) {
     try {
       await codeRequest(value);
 
-      saveEmail(value);
-      setEmail?.(value);
-      setActive(MODALS.CONFIRMATION);
+      dispatch(setModal(MODALS.CONFIRMATION));
       setValue('');
     } catch (e) {
       if (e instanceof Error) {
@@ -99,12 +94,18 @@ function AuthorizationModal({ setActive, active, setEmail }: IModal) {
   };
 
   return (
-    <div className={active === MODALS.AUTHORIZATION ? 'modal__element' : MODALS.INACTIVE}>
+    <div
+      className={
+        activeModal === MODALS.AUTHORIZATION ? 'modal__element' : MODALS.INACTIVE
+      }
+    >
       <div className="modal__top flex">
         <h2 className="modal__title">Авторизация</h2>
         <button
           className="btn btn_close-modal"
-          onClick={() => setActive(MODALS.INACTIVE)}
+          onClick={() => {
+            dispatch(setModal(MODALS.INACTIVE));
+          }}
         >
           +
         </button>
@@ -127,20 +128,29 @@ function AuthorizationModal({ setActive, active, setEmail }: IModal) {
   );
 }
 
-function CodeConfirmationModal({ setActive, active, setLogin }: IModal) {
+function CodeConfirmationModal() {
+  const dispatch = useDispatch();
+  const activeModal = useSelector((state: IStore) => state.activeModal);
+
   const [tokenInput, setTokenInput] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
-      const { email, name } = await getUserData(tokenInput);
-      console.log(email, name);
+      const { email, name, token } = await getUserData(tokenInput);
+      const user: IUser = {
+        name: name,
+        email: email,
+        token: token,
+        isAuth: true,
+      };
 
-      saveToken(tokenInput);
-      setLogin?.(true);
+      saveToken(token);
+      saveEmail(email);
+      dispatch(setUser(user));
+      dispatch(setModal(MODALS.INACTIVE));
 
-      setActive(MODALS.INACTIVE);
       setTokenInput('');
     } catch (e) {
       if (e instanceof Error) {
@@ -152,12 +162,14 @@ function CodeConfirmationModal({ setActive, active, setLogin }: IModal) {
   };
 
   return (
-    <div className={active === MODALS.CONFIRMATION ? 'modal__element' : MODALS.INACTIVE}>
+    <div
+      className={activeModal === MODALS.CONFIRMATION ? 'modal__element' : MODALS.INACTIVE}
+    >
       <div className="modal__top flex">
         <h2 className="modal__title">Подтверждение</h2>
         <button
           className="btn btn_close-modal"
-          onClick={() => setActive(MODALS.INACTIVE)}
+          onClick={() => dispatch(setModal(MODALS.INACTIVE))}
         >
           +
         </button>
@@ -180,4 +192,4 @@ function CodeConfirmationModal({ setActive, active, setLogin }: IModal) {
   );
 }
 
-export { MODALS, Modals };
+export { Modals };

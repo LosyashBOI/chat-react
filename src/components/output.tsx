@@ -1,13 +1,10 @@
 import classNames from 'classnames';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import { getMessageHistory, message } from '../api';
 import { getDate } from '../utils';
-
-interface IOutput {
-  currentEmail: string | undefined;
-  isLoggedIn: boolean;
-}
+import { IStore } from './interfaces';
 
 // function filterMessages(messages: message[], count: number) {
 //   if (count >= messages.length) return;
@@ -18,12 +15,14 @@ interface IOutput {
 //   return messages.slice(start, end);
 // }
 
-function Output({ currentEmail, isLoggedIn }: IOutput) {
+function Output() {
+  const { isAuth } = useSelector((state: IStore) => state.user);
+
   const [messages, setMessages] = useState<Array<message>>([]);
   // const [messageCount, setMessageCount] = useState(20);
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isAuth) {
       console.log('Fetching messages');
 
       (async () => {
@@ -31,12 +30,12 @@ function Output({ currentEmail, isLoggedIn }: IOutput) {
         setMessages(data);
       })();
     }
-  }, [isLoggedIn]);
+  }, [isAuth]);
 
   return (
     <div className="chat__middle">
       <div className="chat__output flex">
-        {messages?.map((item: message) => {
+        {messages.map((item: message) => {
           const { _id: id, text, createdAt: time, user } = item;
 
           return (
@@ -46,7 +45,6 @@ function Output({ currentEmail, isLoggedIn }: IOutput) {
               text={text}
               time={getDate(time)}
               email={user.email}
-              currentEmail={currentEmail}
             />
           );
         })}
@@ -60,13 +58,10 @@ interface destructedMessage {
   text: string;
   name: string;
   email: string;
-  currentEmail: string | undefined;
-  id?: string;
 }
 
-function Message({ name, text, time, email, currentEmail }: destructedMessage) {
-  const isCurrentUserMessage = email === currentEmail;
-
+function Message({ name, text, time, email }: destructedMessage) {
+  const { email: currentEmail } = useSelector((state: IStore) => state.user);
   const ref = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -74,6 +69,8 @@ function Message({ name, text, time, email, currentEmail }: destructedMessage) {
       ref.current.scrollIntoView({ behavior: 'smooth' });
     }
   });
+
+  const isCurrentUserMessage = email === currentEmail;
 
   const messageClass = classNames({
     message: true,
