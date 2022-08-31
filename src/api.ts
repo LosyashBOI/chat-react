@@ -4,6 +4,7 @@ const URL = {
   USER: 'https://mighty-cove-31255.herokuapp.com/api/user',
   GET_USER_DATA: 'https://mighty-cove-31255.herokuapp.com/api/user/me',
   MESSAGES: 'https://mighty-cove-31255.herokuapp.com/api/messages',
+  SOCKET: 'wss://mighty-cove-31255.herokuapp.com/websockets?',
 };
 
 const HEADERS = {
@@ -86,4 +87,4 @@ async function getMessageHistory() {
   return messages;
 }
 
-export { changeUsername, codeRequest, getMessageHistory, getUserData };
+export { changeUsername, codeRequest, getMessageHistory, getUserData, URL };

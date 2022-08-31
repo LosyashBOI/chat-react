@@ -11,7 +11,7 @@ const preloadedState = {
     token: token ?? '',
     isAuth: !!token,
   },
-  activeModal: MODALS.CONFIRMATION,
+  activeModal: MODALS.INACTIVE,
 };
 
 const store = configureStore({

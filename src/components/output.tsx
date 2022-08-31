@@ -1,8 +1,9 @@
 import classNames from 'classnames';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import useWebSocket from 'react-use-websocket';
 
-import { getMessageHistory, message } from '../api';
+import { getMessageHistory, message, URL } from '../api';
 import { getDate } from '../utils';
 import { IStore } from './interfaces';
 
@@ -16,9 +17,9 @@ import { IStore } from './interfaces';
 // }
 
 function Output() {
-  const { isAuth } = useSelector((state: IStore) => state.user);
-
+  const { isAuth, token } = useSelector((state: IStore) => state.user);
   const [messages, setMessages] = useState<Array<message>>([]);
+
   // const [messageCount, setMessageCount] = useState(20);
 
   useEffect(() => {
@@ -29,8 +30,25 @@ function Output() {
         const data = await getMessageHistory();
         setMessages(data);
       })();
+    } else {
+      setMessages([]);
     }
   }, [isAuth]);
+
+  const { lastJsonMessage } = useWebSocket(URL.SOCKET + token, {
+    // eslint-disable-next-line no-unused-vars
+    shouldReconnect: (closeEvent) => isAuth,
+    retryOnError: isAuth,
+  });
+
+  useEffect(() => {
+    const hasMessage =
+      lastJsonMessage !== null && JSON.stringify(lastJsonMessage) !== '{}';
+
+    if (hasMessage) {
+      setMessages((current) => current.concat(lastJsonMessage));
+    }
+  }, [lastJsonMessage]);
 
   return (
     <div className="chat__middle">

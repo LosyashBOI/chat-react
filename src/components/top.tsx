@@ -11,15 +11,15 @@ function Top() {
 
   function handleAuth() {
     if (isAuth) {
-      saveToken('');
-      saveEmail('');
-
       const user: IUser = {
+        isAuth: false,
         name: '',
         email: '',
         token: '',
-        isAuth: false,
       };
+
+      saveToken('');
+      saveEmail('');
 
       dispatch(setUser(user));
     } else {
