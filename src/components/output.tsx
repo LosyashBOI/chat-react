@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { RotatingLines } from 'react-loader-spinner';
 import { useSelector } from 'react-redux';
 import useWebSocket from 'react-use-websocket';
 
@@ -7,28 +8,23 @@ import { getMessageHistory, message, URL } from '../api';
 import { getDate } from '../utils';
 import { IStore } from './interfaces';
 
-// function filterMessages(messages: message[], count: number) {
-//   if (count >= messages.length) return;
-//
-//   const start = messages.length - count;
-//   const end = messages.length;
-//
-//   return messages.slice(start, end);
-// }
-
 function Output() {
   const { isAuth, token } = useSelector((state: IStore) => state.user);
+  const [isFetching, setFetching] = useState(false);
   const [messages, setMessages] = useState<Array<message>>([]);
-
-  // const [messageCount, setMessageCount] = useState(20);
 
   useEffect(() => {
     if (isAuth) {
-      console.log('Fetching messages');
-
       (async () => {
-        const data = await getMessageHistory();
-        setMessages(data);
+        setFetching(true);
+        try {
+          const data = await getMessageHistory();
+          setMessages(data);
+        } catch (e) {
+          alert(e);
+        } finally {
+          setFetching(false);
+        }
       })();
     } else {
       setMessages([]);
@@ -53,6 +49,13 @@ function Output() {
   return (
     <div className="chat__middle">
       <div className="chat__output flex">
+        <RotatingLines
+          strokeColor="black"
+          strokeWidth="5"
+          animationDuration="0.75"
+          width="96"
+          visible={isFetching}
+        />
         {messages.map((item: message) => {
           const { _id: id, text, createdAt: time, user } = item;
 

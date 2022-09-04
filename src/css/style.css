@@ -74,10 +74,12 @@ body {
 }
 
 .chat__output {
+  min-height: 90%;
   padding: 8px;
   flex-wrap: wrap;
   flex-direction: column;
-  justify-content: end;
+  align-items: center;
+  justify-content: center;
 }
 
 .message {
